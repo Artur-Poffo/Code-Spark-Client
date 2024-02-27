@@ -1,12 +1,22 @@
 <script setup lang="ts" >
 import { useAuthStore } from '@/stores/auth';
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
+import { useCookies } from 'vue3-cookies';
 import DefaultButton from '../UI/DefaultButton.vue';
 
-const { user, getAuthenticatedUserData, isAuthenticated, logout } = useAuthStore()
+const { logout } = useAuthStore()
+const isAuthenticated = ref(false)
+const isAStudent = ref(false)
 
 onMounted(async () => {
-  await getAuthenticatedUserData()
+  const { user } = useAuthStore()
+  const { cookies } = useCookies()
+  const acesasToken = cookies.get('spark.accesstoken')
+
+  if (acesasToken) {
+    isAuthenticated.value = true
+    isAStudent.value = user?.role === 'STUDENT' ? true : false
+  }
 })
 </script>
 
@@ -31,7 +41,6 @@ onMounted(async () => {
         </li>
       </ul>
 
-      <!-- FIXME: On refresh page, isAuthenticated is identified as `false`, but in global state it is true -->
       <ul class="flex items-center gap-3">
         <li>
           <router-link to="/signin" v-if="!isAuthenticated">
@@ -41,7 +50,7 @@ onMounted(async () => {
           <DefaultButton v-else class="bg-red-500 py-1 px-3" @click="logout" text="Sair" />
         </li>
 
-        <li v-if="isAuthenticated && user?.role === 'INSTRUCTOR'">
+        <li v-if="isAuthenticated && !isAStudent">
           <router-link to="/courses/new">
             <DefaultButton class="py-1 px-3" text="Novo curso" />
           </router-link>
