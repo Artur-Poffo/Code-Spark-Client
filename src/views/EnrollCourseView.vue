@@ -23,7 +23,7 @@ const course: Ref<ICourse | null> = ref(null)
 const courseStats: Ref<ICourseStats | null> = ref(null)
 const formattedDuration = computed(() => {
     if (!courseStats.value?.duration) return 0
-    return courseStats.value!.duration > 60 ? courseStats.value!.duration / 60 : courseStats.value?.duration
+    return courseStats.value!.duration / 3600 // To hours
 })
 
 onMounted(async () => {
@@ -89,7 +89,7 @@ async function handleEnrollToCourse() {
                             <div class="bg-gray-500 w-20 h-16 rounded flex justify-center items-center">
                                 <i class="pi pi-clock"></i>
                             </div>
-                            <span>{{ courseStats?.duration }} horas</span>
+                            <span>{{ formattedDuration }} horas</span>
                         </li>
                         <li class="flex flex-col text-center gap-1">
                             <div class="bg-gray-500 w-20 h-16 rounded flex justify-center items-center">

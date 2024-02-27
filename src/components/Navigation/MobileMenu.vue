@@ -1,10 +1,35 @@
 <script setup lang="ts">
+import type { IUser } from '@/interfaces/IUser';
+import { api } from '@/lib/axios';
 import { useAuthStore } from '@/stores/auth';
-import { ref } from 'vue';
+import { computed, onMounted, ref, type Ref } from 'vue';
+import { useCookies } from 'vue3-cookies';
 import DefaultButton from '../UI/DefaultButton.vue';
 import DefaultTitle from '../UI/DefaultTitle.vue';
 
-const { user, isAuthenticated, logout } = useAuthStore()
+const { logout } = useAuthStore()
+const user: Ref<IUser | null> = ref(null)
+const isAuthenticated = ref(false)
+const isAStudent = computed(() => {
+  return user.value && user.value.role === 'STUDENT'
+})
+
+onMounted(async () => {
+  const { cookies } = useCookies()
+  const acesasToken = cookies.get('spark.accesstoken')
+
+  if (acesasToken) {
+    isAuthenticated.value = true
+
+    try {
+      const userData = await api.get<{ user: IUser }>('/users')
+      user.value = userData.data.user
+    } catch (err) {
+      console.error(err)
+      user.value = null
+    }
+  }
+})
 
 const isOpen = ref(false)
 </script>
@@ -32,8 +57,8 @@ const isOpen = ref(false)
           <li>
             <router-link active-class="active-link" to="/catalog">Catálogo</router-link>
           </li>
-          <li>
-            <router-link active-class="active-link" to="/profile">Perfil</router-link>
+          <li v-if="isAuthenticated && user">
+            <router-link active-class="active-link" :to="`/profile/${user.id}`">Perfil</router-link>
           </li>
         </ul>
 
@@ -46,7 +71,7 @@ const isOpen = ref(false)
             <DefaultButton v-else class="bg-red-500 py-1 px-3" @click="logout" text="Sair" />
           </li>
 
-          <li v-if="isAuthenticated && user?.role === 'INSTRUCTOR'">
+          <li v-if="isAuthenticated && user && user.role === 'INSTRUCTOR'">
             <router-link to="/courses/new">
               <DefaultButton class="py-1 px-3" text="Novo curso" />
             </router-link>

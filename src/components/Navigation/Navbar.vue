@@ -1,21 +1,32 @@
 <script setup lang="ts" >
+import type { IUser } from '@/interfaces/IUser';
+import { api } from '@/lib/axios';
 import { useAuthStore } from '@/stores/auth';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref, type Ref } from 'vue';
 import { useCookies } from 'vue3-cookies';
 import DefaultButton from '../UI/DefaultButton.vue';
 
 const { logout } = useAuthStore()
+const user: Ref<IUser | null> = ref(null)
 const isAuthenticated = ref(false)
-const isAStudent = ref(false)
+const isAStudent = computed(() => {
+  return user.value && user.value.role === 'STUDENT'
+})
 
 onMounted(async () => {
-  const { user } = useAuthStore()
   const { cookies } = useCookies()
   const acesasToken = cookies.get('spark.accesstoken')
 
   if (acesasToken) {
     isAuthenticated.value = true
-    isAStudent.value = user?.role === 'STUDENT' ? true : false
+
+    try {
+      const userData = await api.get<{ user: IUser }>('/users')
+      user.value = userData.data.user
+    } catch (err) {
+      console.error(err)
+      user.value = null
+    }
   }
 })
 </script>
@@ -36,8 +47,8 @@ onMounted(async () => {
           <router-link active-class="active-link" to="/catalog">Catálogo</router-link>
         </li>
 
-        <li class="hover:opacity-80 transition-opacity">
-          <router-link active-class="active-link" to="/profile">Perfil</router-link>
+        <li v-if="isAuthenticated && user" class="hover:opacity-80 transition-opacity">
+          <router-link active-class="active-link" :to="`/profile/${user.id}`">Perfil</router-link>
         </li>
       </ul>
 

@@ -19,3 +19,4 @@
 ## Possible refactors/updates
 
 - [ ] Form validation, We're out of time but it's super important
+- [ ] Improve responsive design
