@@ -8,9 +8,11 @@ import { getCourseDetails } from '@/services/getCourseDetails';
 import { getCourseStats } from '@/services/getCourseStats';
 import { getEnrollmentDetails } from '@/services/getEnrollmentDetails';
 import { useAuthStore } from '@/stores/auth';
-import { onMounted, ref, type Ref } from 'vue';
+import { computed, onMounted, ref, type Ref } from 'vue';
 
 const { user, isAuthenticated } = useAuthStore()
+
+const cloudflarePublicUrl = import.meta.env.VITE_CLOUDFLARE_PUBLIC_URL;
 
 const isSubmitting = ref(false)
 const isDisabledToSubmit = ref(false)
@@ -19,6 +21,10 @@ const courseId = router.currentRoute.value.params.courseId as string
 
 const course: Ref<ICourse | null> = ref(null)
 const courseStats: Ref<ICourseStats | null> = ref(null)
+const formattedDuration = computed(() => {
+    if (!courseStats.value?.duration) return 0
+    return courseStats.value!.duration > 60 ? courseStats.value!.duration / 60 : courseStats.value?.duration
+})
 
 onMounted(async () => {
     if (user && user.role === 'INSTRUCTOR') {
@@ -31,15 +37,15 @@ onMounted(async () => {
         if (studentAlreadyEnrolledIn) {
             router.push('/coursepage')
         }
-
-        const courseToGetDetails = await getCourseDetails(courseId)
-        const stats = await getCourseStats(courseId)
-
-        course.value = courseToGetDetails
-        courseStats.value = stats
     } catch (err) {
         console.error(err)
     }
+
+    const courseToGetDetails = await getCourseDetails(courseId)
+    const stats = await getCourseStats(courseId)
+
+    course.value = courseToGetDetails ?? null
+    courseStats.value = stats ?? null
 })
 
 async function handleEnrollToCourse() {
@@ -62,11 +68,14 @@ async function handleEnrollToCourse() {
 <template>
     <section v-if="course" class="flex gap-12 flex-col sm:pt-28 pb-10 md:px-16">
         <header class="w-full">
-            <img class="w-full h-96 rounded object-cover" :src="course?.bannerImageKey" alt="Imagem do curso">
+            <img v-if="course.bannerImageKey" class="w-full h-96 rounded object-cover"
+                :src="`${cloudflarePublicUrl}/${course.bannerImageKey}`" alt="Imagem do curso">
+
+            <div v-else class="w-full h-96 rounded bg-gradient-to-br from-green-500 to-green-200" />
         </header>
 
         <main class="flex flex-col px-4 md:px-0 gap-10 2xl:flex-row items-center justify-between">
-            <div class="max-w-4xl flex-col flex gap-6">
+            <div class="w-full max-w-4xl flex-col flex gap-6">
                 <h1 class="font-righteous text-2xl text-green-500">{{ course?.name }}</h1>
                 <p class="text-lg">{{ course?.description }}</p>
                 <DefaultButton @click="handleEnrollToCourse" :disabled="isDisabledToSubmit || isSubmitting"
@@ -80,7 +89,7 @@ async function handleEnrollToCourse() {
                             <div class="bg-gray-500 w-20 h-16 rounded flex justify-center items-center">
                                 <i class="pi pi-clock"></i>
                             </div>
-                            <span>{{ courseStats?.duration }}</span>
+                            <span>{{ courseStats?.duration }} horas</span>
                         </li>
                         <li class="flex flex-col text-center gap-1">
                             <div class="bg-gray-500 w-20 h-16 rounded flex justify-center items-center">
@@ -92,7 +101,7 @@ async function handleEnrollToCourse() {
                             <div class="bg-gray-500 w-20 h-16 rounded flex justify-center items-center">
                                 <i class="pi pi-calendar"></i>
                             </div>
-                            <span>{{ course?.createdAt.toLocaleDateString() }}</span>
+                            <span>{{ new Date(course?.createdAt).toLocaleDateString() }}</span>
                         </li>
                     </div>
 

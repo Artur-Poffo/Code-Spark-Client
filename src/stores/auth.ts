@@ -17,7 +17,6 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = response.data.user
     } catch (err) {
       console.error(err)
-      user.value = null
     }
   }
 

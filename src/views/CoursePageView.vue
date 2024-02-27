@@ -59,9 +59,9 @@ const modules: IModule[] = [
 
         <main class="flex flex-col gap-10 relative">
             <div class="flex gap-12">
-                <ul class="flex flex-col gap-4">
+                <ul class="w-full flex flex-col gap-4">
                     <li v-for="module in modules" :key="module.id"
-                        class="flex flex-col bg-gray-800 max-w-4xl p-5 gap-2 relative rounded">
+                        class="flex flex-col bg-gray-800 w-full max-w-4xl p-5 gap-2 relative rounded">
                         <ModuleWrapper :module="module"></ModuleWrapper>
                         <i
                             class="pi pi-check-circle text-2xl absolute -translate-x-1/2 -translate-y-1/2 top-1/2 -right-7"></i>

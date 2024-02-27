@@ -81,7 +81,7 @@ export default {
                     </SearchBar>
 
                     <DefaultList v-if="filteredCourses.length > 0" :centered="true" class="py-10">
-                        <li v-for="course in filteredCourses" :key="course.course.id">
+                        <li class="w-full xs:w-auto" v-for="course in filteredCourses" :key="course.course.id">
                             <CourseCard :course="course" />
                         </li>
                     </DefaultList>

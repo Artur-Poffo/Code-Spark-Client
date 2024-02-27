@@ -1,8 +1,13 @@
 <script setup lang="ts" >
 import { useAuthStore } from '@/stores/auth';
+import { onMounted } from 'vue';
 import DefaultButton from '../UI/DefaultButton.vue';
 
-const { user, isAuthenticated, logout } = useAuthStore()
+const { user, getAuthenticatedUserData, isAuthenticated, logout } = useAuthStore()
+
+onMounted(async () => {
+  await getAuthenticatedUserData()
+})
 </script>
 
 <template>
