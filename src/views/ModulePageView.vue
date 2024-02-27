@@ -4,7 +4,8 @@ import ModulesWrapper from '@/components/UI/ModuleWrapper.vue';
 import ModuleText from '@/components/UI/ModuleText.vue';
 import ButtonModule from '@/components/UI/ButtonModule.vue';
 import { type IModule } from '@/interfaces/IModule';
-
+import type DeleteModuleButtonVue from '@/components/UI/DeleteModuleButton.vue';
+import EditModuleButton from '@/components/UI/EditModuleButton.vue';
 const modules: IModule[] = [
     {
         id: 1,
@@ -43,11 +44,11 @@ const modules: IModule[] = [
             </ModuleBar>
         </section>
 
-        <section class="pr-60 py-32">
+        <section class="pl-120 pr-60 py-32 min-w-full">
             <ModuleText title="Módulos" text="5 módulos cadastrados" subtitle="Módulos cadastrados no curso">
                 <ul class="py-7">
                     <li v-for="module in modules" :key="module.id">
-                        <ModulesWrapper :module = "module">
+                        <ModulesWrapper :editable="false" :module = "module">
                         </ModulesWrapper>
                     </li>
                 </ul>

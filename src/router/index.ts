@@ -5,14 +5,12 @@ import { api } from '@/lib/axios'
 import { useAuthStore } from '@/stores/auth'
 import AddClassToModuleView from '@/views/AddClassToModuleView.vue'
 import AddModuleToCourseView from '@/views/AddModuleToCourseView.vue'
-import CatalogPageViewVue from '@/views/CatalogPageView.vue'
-import ClassPageViewVue from '@/views/ClassPageView.vue'
 import CoursePageView from '@/views/CoursePageView.vue'
 import EditClassView from '@/views/EditClassView.vue'
 import EditModuleView from '@/views/EditModuleView.vue'
 import EditUserView from '@/views/EditUserView.vue'
 import EnrollCourseView from '@/views/EnrollCourseView.vue'
-import ModulePageViewVue from '@/views/ModulePageView.vue'
+import ModulePageView from '@/views/ModulePageView.vue'
 import ProfileViewVue from '@/views/ProfileView.vue'
 import RegisterCourseView from '@/views/RegisterCourseView.vue'
 import SignInView from '@/views/SignInView.vue'
@@ -20,6 +18,8 @@ import SignUpView from '@/views/SignUpView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import { useCookies } from 'vue3-cookies'
 import HomeView from '../views/HomeView.vue'
+import CatalogPageViewVue from '@/views/CatalogPageView.vue'
+import ClassViewVue from '@/views/ClassView.vue'
 
 
 const router = createRouter({
@@ -271,7 +271,7 @@ const router = createRouter({
     {
       path: '/modules',
       name: 'modules',
-      component: ModulePageViewVue
+      component: ModulePageView
     },
       
     {
@@ -284,6 +284,12 @@ const router = createRouter({
       path: '/coursepage',
       name: 'coursepage',
       component: CoursePageView
+    },
+    {
+      path: '/classes',
+      name: 'classes',
+      component: ClassViewVue
+      
     }
   ]
 })

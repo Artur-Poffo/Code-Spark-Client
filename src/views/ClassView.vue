@@ -4,6 +4,8 @@ import ModuleText from '@/components/UI/ModuleText.vue'
 import ButtonModule from '@/components/UI/ButtonModule.vue';
 import TableClass from '@/components/UI/TableClass.vue';
 import type { ITable } from '@/interfaces/ITable';
+import DeleteModuleButton from '@/components/UI/DeleteModuleButton.vue';
+import EditModuleButton from '@/components/UI/EditModuleButton.vue';
 
 const tables: ITable[] = [
     {
@@ -117,12 +119,13 @@ const tables: ITable[] = [
             </ModuleBar>
         </section>
 
-        <section class="pl-120 pr-20 py-32 min-w-full">
+        <section class="pl-120 pr-60 py-32 min-w-full">
 
-            <ModuleText title="Aulas" text="20 aulas registradas" subtitle="Aulas cadastradas no curso">
+            <ModuleText class="pb-8" title="Aulas" text="20 aulas registradas" subtitle="Aulas cadastradas no curso">
             </ModuleText>
 
-            <TableClass class="py-7">
+            <TableClass class="py-5">
+                
                 <tr v-for="table in tables " :key="table.id">
                     <td class="border border-solid border-gray-500 text-lg font-medium text-gray-300 py-2">{{
                         table.name }}
@@ -130,7 +133,12 @@ const tables: ITable[] = [
                     <td class="border border-solid border-gray-500 text-lg font-medium text-gray-300 py-2">{{
                         table.module
                     }}</td>
+                    <aside class="flex items-center justify-center w-36 gap-2 py-2">
+                    <DeleteModuleButton></DeleteModuleButton>
+                    <EditModuleButton></EditModuleButton>
+            </aside>
                 </tr>
+            
             </TableClass>
         </section>
 

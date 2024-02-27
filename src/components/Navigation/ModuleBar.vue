@@ -14,23 +14,23 @@
         <nav class="py-2">
             <ul class="text-lg">
                 <li class="hover:opacity-80 transition-opacity">
-                    <router-link to="/dashboard">Dashboard</router-link>
+                    <router-link active-class="active-link" to="/dashboard">Dashboard</router-link>
                 </li>
 
                 <li class="hover:opacity-80 transition-opacity">
-                    <router-link to="/registeredstudents">Estudantes Inscritos</router-link>
+                    <router-link active-class="active-link" to="/registeredstudents">Estudantes Inscritos</router-link>
                 </li>
 
                 <li class="hover:opacity-80 transition-opacity">
-                    <router-link to="/modules">Módulos</router-link>
+                    <router-link active-class="active-link" to="/modules">Módulos</router-link>
                 </li>
 
                 <li class="hover:opacity-80 transition-opacity">
-                    <router-link to="/classes">Aulas</router-link>
+                    <router-link active-class="active-link" to="/classes">Aulas</router-link>
                 </li>
 
                 <li class="py-10 hover:opacity-80 transition-opacity">
-                    <router-link to="/settings">Configurações</router-link>
+                    <router-link active-class="active-link" to="/settings">Configurações</router-link>
                 </li>
             </ul>
         </nav>
