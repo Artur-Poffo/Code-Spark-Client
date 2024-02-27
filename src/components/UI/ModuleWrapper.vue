@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { type IModule } from '@/interfaces/IModule';
-import DeleteModuleButton from './DeleteModuleButton.vue';
-import EditModuleButton from './EditModuleButton.vue';
 
 defineProps<{
     module: IModule
-    editable: boolean
+    editable?: boolean
 }>()
 </script>
 

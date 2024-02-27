@@ -35,7 +35,7 @@ onMounted(async () => {
         const studentAlreadyEnrolledIn = await getEnrollmentDetails(courseId, user?.id ?? '')
 
         if (studentAlreadyEnrolledIn) {
-            router.push('/coursepage')
+            router.push(`/courses/${courseId}`)
         }
     } catch (err) {
         console.error(err)
@@ -57,7 +57,7 @@ async function handleEnrollToCourse() {
         }
 
         await enrollToCourse(courseId)
-        router.push('/coursepage')
+        router.push(`/courses/${courseId}`)
     } catch (err) {
         console.error(err)
         isSubmitting.value = false

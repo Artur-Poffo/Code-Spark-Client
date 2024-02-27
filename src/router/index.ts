@@ -2,6 +2,7 @@ import type { IClass } from '@/interfaces/IClass'
 import type { ICourse } from '@/interfaces/ICourse'
 import type { IModule } from '@/interfaces/IModule'
 import { api } from '@/lib/axios'
+import { getEnrollmentDetails } from '@/services/getEnrollmentDetails'
 import { useAuthStore } from '@/stores/auth'
 import AddClassToModuleView from '@/views/AddClassToModuleView.vue'
 import AddModuleToCourseView from '@/views/AddModuleToCourseView.vue'
@@ -280,9 +281,28 @@ const router = createRouter({
     },
       
     {
-      path: '/coursepage',
-      name: 'coursepage',
-      component: CoursePageView
+      path: '/courses/:courseId',
+      name: 'coursePage',
+      component: CoursePageView,
+      beforeEnter: async (to, from, next) => {
+        const courseId = to.params.courseId as string
+        const { user } = useAuthStore()
+
+        if (!user) {
+          return next({
+            path: '/signin'
+          })
+        }
+
+        try {
+          await getEnrollmentDetails(courseId, user.id)
+          return next() // OK
+        } catch (err) {
+          return next({
+            path: '/' // Error found enrollment
+          })
+        }
+      }
     }
   ]
 })

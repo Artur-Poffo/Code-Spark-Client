@@ -67,7 +67,8 @@ export default {
       </header>
 
       <main class="flex flex-col gap-9">
-        <ContentListWrapper v-if="user" :title="`${isAStudent ? 'Continue de onde parou' : 'Seus cursos'}`">
+        <ContentListWrapper v-if="user && (studentCourses.length > 0 || instructorCourses.length > 0)"
+          :title="`${isAStudent ? 'Continue de onde parou' : 'Seus cursos'}`">
           <DefaultList v-if="isAStudent && studentCourses.length > 0" class="justify-center xl:justify-start">
             <li class="w-full xs:w-auto" v-for="course in studentCourses" :key="course.course.id">
               <CourseCard :course="course" />

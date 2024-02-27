@@ -51,6 +51,22 @@ export default {
         async fetchInstructorCourses(instructorId: string) {
             this.instructorCourses = await fetchInstructorCourses(instructorId)
         },
+    },
+
+    computed: {
+        titleText() {
+            return this.user && this.user.role === 'STUDENT' ? 'Matrículas' : 'Seus cursos'
+        },
+
+        coursesToDisplay() {
+            if (this.user && this.user.role === 'STUDENT') {
+                return this.studentCourses;
+            } else if (this.user && this.user.role === 'INSTRUCTOR') {
+                return this.instructorCourses;
+            } else {
+                return [];
+            }
+        }
     }
 }
 </script>
@@ -107,23 +123,16 @@ export default {
 
             <main class="flex flex-col gap-8">
                 <header>
-                    <DefaultTitle class="text-green-500"
-                        :text="`${user.role === 'STUDENT' ? 'Matrículas' : 'Seus cursos'}`"></DefaultTitle>
+                    <DefaultTitle class="text-green-500" :text="titleText"></DefaultTitle>
                 </header>
 
-                <DefaultList v-if="user && user.role === 'STUDENT'" :centered="true">
-                    <li class="w-full xs:w-auto" v-for="course in studentCourses" :key="course.course.id">
+                <DefaultList v-if="coursesToDisplay && coursesToDisplay.length > 0" :centered="true">
+                    <li class="w-full xs:w-auto" v-for="course in coursesToDisplay" :key="course.course.id">
                         <CourseCard :course="course" />
                     </li>
                 </DefaultList>
 
-                <DefaultList v-if="user && user.role === 'INSTRUCTOR'" :centered="true">
-                    <li class="w-full xs:w-auto" v-for="course in instructorCourses" :key="course.course.id">
-                        <CourseCard :course="course" />
-                    </li>
-                </DefaultList>
-
-                <EmptyList v-else-if="instructorCourses.length === 0 || studentCourses.length === 0" />
+                <EmptyList v-else />
             </main>
         </article>
     </section>
