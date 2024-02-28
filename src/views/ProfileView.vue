@@ -1,5 +1,6 @@
 <script lang="ts">
 import CourseCard from '@/components/UI/CourseCard.vue';
+import DefaultButton from '@/components/UI/DefaultButton.vue';
 import DefaultList from '@/components/UI/DefaultList.vue';
 import DefaultTitle from '@/components/UI/DefaultTitle.vue';
 import EmptyList from '@/components/UI/EmptyList.vue';
@@ -9,6 +10,7 @@ import type { IUser } from '@/interfaces/IUser';
 import { fetchInstructorCourses } from '@/services/fetchInstructorCourses';
 import { fetchStudentCourses } from '@/services/fetchStudentCourses';
 import { getUserData } from '@/services/getUserData';
+import { useAuthStore } from '@/stores/auth';
 
 export default {
     components: {
@@ -16,15 +18,19 @@ export default {
         DefaultList,
         DefaultTitle,
         UserTag,
-        EmptyList
+        EmptyList,
+        DefaultButton
     },
 
     data() {
+        const { user: authenticatedUser } = useAuthStore()
+
         return {
             user: null as IUser | null,
             cloudflarePublicUrl: import.meta.env.VITE_CLOUDFLARE_PUBLIC_URL,
             studentCourses: [] as ICourseWithInstructorAndEvaluationsAverage[],
             instructorCourses: [] as ICourseWithInstructorAndEvaluationsAverage[],
+            authenticatedUser,
         }
     },
 
@@ -76,7 +82,8 @@ export default {
         <article class="max-w-screen-xl mx-auto flex flex-col gap-10">
             <header class="flex flex-col gap-4 justify-between">
                 <div class="flex flex-col lg:flex-row gap-4">
-                    <div class="w-full h-full p-5 flex flex-col items-center flex-1 md:flex-row gap-7 bg-gray-800 rounded">
+                    <div
+                        class="w-full h-full relative p-5 flex flex-col items-center flex-1 md:flex-row gap-7 bg-gray-800 rounded">
                         <div class="-mt-14 md:-mt-0 flex flex-col items-center">
                             <img v-if="user.profileImageKey" :src="`${cloudflarePublicUrl}/${user.profileImageKey}`"
                                 alt="Imagem do usuário" class="w-48 h-48 rounded object-cover">
@@ -84,6 +91,11 @@ export default {
                             <div v-else class="w-48 h-48 rounded default-gradient" />
 
                             <UserTag class="-mt-2 md:mx-2" :text="user.role === 'INSTRUCTOR' ? 'INSTRUTOR' : 'ESTUDANTE'" />
+
+                            <router-link to="/profile/edit">
+                                <DefaultButton v-if="user.id === authenticatedUser?.id"
+                                    class="mt-5 static lg:absolute lg:mt-0 top-10 right-10" text="Editar perfil" />
+                            </router-link>
                         </div>
 
                         <div class="w-full px-4">

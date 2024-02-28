@@ -110,9 +110,11 @@ export default {
                 <ul v-if="studentProgress" class="w-full flex flex-col gap-4">
                     <li v-for="module in studentProgress.modules" :key="module.id"
                         class="flex flex-col bg-gray-800 w-full max-w-4xl p-5 gap-2 relative rounded">
-                        <ModuleWrapper :module="module"></ModuleWrapper>
-                        <i
-                            :class="`pi pi-check-circle text-2xl ${module.completed && 'text-green-200'} absolute -translate-x-1/2 -translate-y-1/2 top-1/2 -right-7`"></i>
+                        <router-link :to="`/modules/${module.id}/classes/${studentProgress.classes[0].id}`">
+                            <ModuleWrapper :module="module"></ModuleWrapper>
+                            <i
+                                :class="`pi pi-check-circle text-2xl ${module.completed && 'text-green-200'} absolute -translate-x-1/2 -translate-y-1/2 top-1/2 -right-7`"></i>
+                        </router-link>
                     </li>
                 </ul>
 

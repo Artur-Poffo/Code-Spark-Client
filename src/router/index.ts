@@ -1,26 +1,27 @@
-import type { IClass } from '@/interfaces/IClass'
-import type { ICourse } from '@/interfaces/ICourse'
-import type { IModule } from '@/interfaces/IModule'
-import { api } from '@/lib/axios'
-import { getEnrollmentDetails } from '@/services/getEnrollmentDetails'
-import { useAuthStore } from '@/stores/auth'
-import AddClassToModuleView from '@/views/AddClassToModuleView.vue'
-import AddModuleToCourseView from '@/views/AddModuleToCourseView.vue'
-import CatalogPageViewVue from '@/views/CatalogPageView.vue'
-import ClassView from '@/views/ClassView.vue'
-import CoursePageView from '@/views/CoursePageView.vue'
-import EditClassView from '@/views/EditClassView.vue'
-import EditModuleView from '@/views/EditModuleView.vue'
-import EditUserView from '@/views/EditUserView.vue'
-import EnrollCourseView from '@/views/EnrollCourseView.vue'
-import ModulePageView from '@/views/ModulePageView.vue'
-import ProfileView from '@/views/ProfileView.vue'
-import RegisterCourseView from '@/views/RegisterCourseView.vue'
-import SignInView from '@/views/SignInView.vue'
-import SignUpView from '@/views/SignUpView.vue'
-import { createRouter, createWebHistory } from 'vue-router'
-import { useCookies } from 'vue3-cookies'
-import HomeView from '../views/HomeView.vue'
+import type { IClass } from '@/interfaces/IClass';
+import type { ICourse } from '@/interfaces/ICourse';
+import type { IModule } from '@/interfaces/IModule';
+import { api } from '@/lib/axios';
+import { getEnrollmentDetails } from '@/services/getEnrollmentDetails';
+import { useAuthStore } from '@/stores/auth';
+import AddClassToModuleView from '@/views/AddClassToModuleView.vue';
+import AddModuleToCourseView from '@/views/AddModuleToCourseView.vue';
+import CatalogPageView from '@/views/CatalogPageView.vue';
+import ClassView from '@/views/ClassView.vue';
+import ClassesListView from '@/views/ClassesListView.vue';
+import CoursePageView from '@/views/CoursePageView.vue';
+import EditClassView from '@/views/EditClassView.vue';
+import EditModuleView from '@/views/EditModuleView.vue';
+import EditUserView from '@/views/EditUserView.vue';
+import EnrollCourseView from '@/views/EnrollCourseView.vue';
+import ModulesListVue from '@/views/ModulesListView.vue';
+import ProfileView from '@/views/ProfileView.vue';
+import RegisterCourseView from '@/views/RegisterCourseView.vue';
+import SignInView from '@/views/SignInView.vue';
+import SignUpView from '@/views/SignUpView.vue';
+import { createRouter, createWebHistory } from 'vue-router';
+import { useCookies } from 'vue3-cookies';
+import HomeView from '../views/HomeView.vue';
 
 
 const router = createRouter({
@@ -37,6 +38,12 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomeView
+    },
+
+    {
+      path: '/catalog',
+      name: 'catalog',
+      component: CatalogPageView
     },
 
     {
@@ -263,23 +270,63 @@ const router = createRouter({
     },
 
     {
-      path: '/classpage',
-      name: 'classpage',
-      component: ClassView
+      path: '/modules/:moduleId/classes/:classId',
+      name: 'classPage',
+      component: ClassView,
+      beforeEnter: async (to, _from, next) => {
+        const classId = to.params.classId as string
+        const { user } = useAuthStore()
+
+        if (!user) {
+          return next({
+            path: '/signin' // Not authenticated
+          })
+        }
+
+        const isAInstructor = user.role === 'INSTRUCTOR'
+
+        if (isAInstructor) {
+          return next({
+            path: '/' // Unauthorized
+          })
+        }
+
+        try {
+          const {data: { class: classFound }} = await api.get<{class: IClass}>(`/classes/${classId}`)
+          const {data: { module }} = await api.get<{module: IModule}>(`/modules/${classFound.moduleId}`)
+          const {data: { course }} = await api.get<{course: ICourse}>(`/courses/${module.courseId}`)
+
+          const studentIsEnrolledToCourse = await getEnrollmentDetails(course.id, user.id)
+
+          if (!studentIsEnrolledToCourse) {
+            return next({
+              path: `/courses/${course.id}/enroll` // Unauthorized, enroll
+            })
+          }
+
+          return next() // OK, continue
+        } catch (err) {
+          console.error(err)
+
+          return next({
+            path: '/'
+          })
+        }
+      }
     },
       
     {
-      path: '/modules',
-      name: 'modules',
-      component: ModulePageView
+      path: '/courses/:courseId/modules',
+      name: 'courseModules',
+      component: ModulesListVue
     },
-      
+
     {
-      path: '/catalog',
-      name: 'catalog',
-      component: CatalogPageViewVue
+      path: '/courses/:courseId/classes',
+      name: 'courseClasses',
+      component: ClassesListView
     },
-      
+    
     {
       path: '/courses/:courseId',
       name: 'coursePage',

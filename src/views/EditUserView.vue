@@ -77,7 +77,7 @@ async function handleEditUserDetails() {
       profileImageKey: originalUser.value?.profileImageKey !== formData.value.profileImageKey ? formData.value.profileImageKey : undefined,
     })
 
-    router.push('/')
+    router.push(`/profile/${originalUser.value?.id}`)
   } catch (err) {
     console.error(err)
     isSubmitting.value = false
@@ -86,7 +86,7 @@ async function handleEditUserDetails() {
 </script>
 
 <template>
-  <FormPageTemplate title="Editar aula">
+  <FormPageTemplate title="Editar perfil">
     <form @submit.prevent="handleEditUserDetails" class="w-full max-w-xl flex flex-col gap-5">
       <DefaultInput v-model="formData.email" type="email" label="Email" placeholder="Email" />
       <DefaultInput v-model="formData.age" type="number" label="Idade" placeholder="Idade" />

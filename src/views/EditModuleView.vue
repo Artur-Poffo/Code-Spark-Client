@@ -48,7 +48,7 @@ async function handleEditModuleDetails() {
       moduleNumber: originalModule.value?.moduleNumber !== formData.value.moduleNumber ? Number(formData.value.moduleNumber) : undefined
     })
 
-    router.push('/')
+    router.push(`/courses/${originalModule.value?.courseId}`)
   } catch (err) {
     console.error(err)
     isSubmitting.value = false

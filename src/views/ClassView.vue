@@ -1,150 +1,150 @@
-<script setup lang="ts">
-import ModuleBar from '@/components/Navigation/ModuleBar.vue';
-import ModuleText from '@/components/UI/ModuleText.vue'
-import ButtonModule from '@/components/UI/ButtonModule.vue';
-import TableClass from '@/components/UI/TableClass.vue';
-import type { ITable } from '@/interfaces/ITable';
-import DeleteModuleButton from '@/components/UI/DeleteModuleButton.vue';
-import EditModuleButton from '@/components/UI/EditModuleButton.vue';
+<script lang="ts">
+import ClassCard from '@/components/UI/ClassCard.vue';
+import Evaluation from '@/components/UI/Evaluation.vue';
+import type { IClass } from '@/interfaces/IClass';
+import type { ICourse } from '@/interfaces/ICourse';
+import type { ICourseWithStudentProgress } from '@/interfaces/ICourseWithStudentProgress';
+import type { IEnrollment } from '@/interfaces/IEnrollment';
+import type { IModule } from '@/interfaces/IModule';
+import type { IVideo } from '@/interfaces/IVideo';
+import { fetchModuleClasses } from '@/services/fetchModuleClasses';
+import { getClassDetails } from '@/services/getClassDetails';
+import { getCourseDetails } from '@/services/getCourseDetails';
+import { getEnrollmentDetails } from '@/services/getEnrollmentDetails';
+import { getModuleDetails } from '@/services/getModuleDetails';
+import { getStudentProgress } from '@/services/getStudentProgress';
+import { getVideoDetailsById } from '@/services/getVideoDetailsById';
+import { toggleMarkClassAsCompleted } from '@/services/toggleMarkClassAsCompleted';
+import { useAuthStore } from '@/stores/auth';
 
-const tables: ITable[] = [
-    {
-        id: 1,
-        name: 'Primeira Aula',
-        module: 'O que vamos aprender?'
-    },
-    {
-        id: 2,
-        name: 'Primeira Aula',
-        module: 'O que vamos aprender?'
-    },
-    {
-        id: 3,
-        name: 'Primeira Aula',
-        module: 'O que vamos aprender?'
-    },
-    {
-        id: 4,
-        name: 'Primeira Aula',
-        module: 'O que vamos aprender?'
-    },
-    {
-        id: 5,
-        name: 'Primeira Aula',
-        module: 'O que vamos aprender?'
-    },
-    {
-        id: 6,
-        name: 'Primeira Aula',
-        module: 'O que vamos aprender?'
-    },
-    {
-        id: 7,
-        name: 'Primeira Aula',
-        module: 'O que vamos aprender?'
-    },
-    {
-        id: 8,
-        name: 'Primeira Aula',
-        module: 'O que vamos aprender?'
-    },
-    {
-        id: 9,
-        name: 'Primeira Aula',
-        module: 'O que vamos aprender?'
-    },
-    {
-        id: 10,
-        name: 'Primeira Aula',
-        module: 'O que vamos aprender?'
-    },
-    {
-        id: 11,
-        name: 'Primeira Aula',
-        module: 'O que vamos aprender?'
-    },
-    {
-        id: 12,
-        name: 'Primeira Aula',
-        module: 'O que vamos aprender?'
-    },
-    {
-        id: 13,
-        name: 'Primeira Aula',
-        module: 'O que vamos aprender?'
-    },
-    {
-        id: 14,
-        name: 'Primeira Aula',
-        module: 'O que vamos aprender?'
-    },
-    {
-        id: 15,
-        name: 'Primeira Aula',
-        module: 'O que vamos aprender?'
-    },
-    {
-        id: 16,
-        name: 'Primeira Aula',
-        module: 'O que vamos aprender?'
-    },
-    {
-        id: 17,
-        name: 'Primeira Aula',
-        module: 'O que vamos aprender?'
-    },
-    {
-        id: 18,
-        name: 'Primeira Aula',
-        module: 'O que vamos aprender?'
-    },
-    {
-        id: 19,
-        name: 'Primeira Aula',
-        module: 'O que vamos aprender?'
-    },
-    {
-        id: 20,
-        name: 'Primeira Aula',
-        module: 'O que vamos aprender?'
+export default {
+  components: {
+    ClassCard,
+    Evaluation
+  },
+
+  data() {
+    const cloudflarePublicUrl = import.meta.env.VITE_CLOUDFLARE_PUBLIC_URL as string
+
+    return {
+      module: null as IModule | null,
+      course: null as ICourse | null,
+      enrollment: null as IEnrollment | null,
+      studentProgress: null as ICourseWithStudentProgress | null,
+      moduleClasses: [] as IClass[],
+      selectedClass: null as IClass | null,
+      video: null as IVideo | null,
+      cloudflarePublicUrl
+    }
+  },
+
+  async mounted() {
+    const { user } = useAuthStore()
+
+    if (!user) {
+      this.$router.push('/signin')
+      return
     }
 
-]
+    const moduleId = this.$router.currentRoute.value.params.moduleId as string
+    this.module = await getModuleDetails(moduleId)
+
+    if (!this.module) {
+      this.$router.push('/')
+      return
+    }
+
+    this.course = await getCourseDetails(this.module.courseId)
+
+    if (!this.course) {
+      this.$router.push('/')
+      return
+    }
+
+    this.enrollment = await getEnrollmentDetails(this.module.courseId, user.id)
+
+    if (!this.enrollment) {
+      this.$router.push('/')
+      return
+    }
+
+    this.studentProgress = await getStudentProgress(this.enrollment.id)
+
+    if (!this.studentProgress) {
+      this.$router.push('/')
+      return
+    }
+
+    this.moduleClasses = await fetchModuleClasses(moduleId)
+
+    const classId = this.$router.currentRoute.value.params.classId as string
+    this.selectedClass = await getClassDetails(classId)
+
+    this.video = await getVideoDetailsById(this.selectedClass.videoId)
+  },
+
+  methods: {
+    async handleMarkClassAsCompleted(classId: string) {
+      await toggleMarkClassAsCompleted(classId, this.enrollment!.id)
+    }
+  },
+
+  computed: {
+    completedClassIds() {
+      return this.studentProgress ? this.studentProgress.classes.map(classToMap => classToMap.id) : []
+    },
+
+    formattedClasses() {
+      return this.moduleClasses.map(moduleClass => {
+        if (this.completedClassIds.includes(moduleClass.id)) {
+          return {
+            ...moduleClass,
+            completed: true
+          }
+        }
+
+        return {
+          ...moduleClass,
+          completed: false
+        }
+      })
+    }
+  }
+}
 </script>
 
 <template>
-    <div class="flex justify-between">
-        <section>
-            <ModuleBar>
-            </ModuleBar>
-        </section>
+  <section v-if="selectedClass && video" class="flex justify-center w-full pt-10 sm:pt-28 pb-10 px-4">
+    <main class="flex flex-col lg:flex-row gap-5">
+      <div class="flex flex-col gap-5">
+        <video controls class="w-full rounded">
+          <source :src="`${cloudflarePublicUrl}/${video.videoKey}`">
+        </video>
 
-        <section class="pl-120 pr-60 py-32 min-w-full">
+        <div class="w-full bg-gray-800 flex flex-col lg:flex-row lg:justify-between gap-10 rounded p-5">
+          <div class="flex flex-col gap-3">
+            <a :href="`/courses/${course?.id}`" class="text-sm text-gray-300 underline underline-offset-4">{{ course?.name
+            }}</a>
+            <h1 class="font-semibold text-xl">{{ selectedClass.name }}</h1>
+            <p class="max-w-xl font-medium">
+              {{ selectedClass.description }}
+            </p>
+          </div>
 
-            <ModuleText class="pb-8" title="Aulas" text="20 aulas registradas" subtitle="Aulas cadastradas no curso">
-            </ModuleText>
+          <div class="flex flex-col items-center gap-2">
+            <h1 class="font-semibold text-lg">Avaliar a Aula</h1>
+            <Evaluation :length="5" :disabled="false" :read-only="false" :active="3" />
+          </div>
+        </div>
+      </div>
 
-            <TableClass class="py-5">
-                
-                <tr v-for="table in tables " :key="table.id">
-                    <td class="border border-solid border-gray-500 text-lg font-medium text-gray-300 py-2">{{
-                        table.name }}
-                    </td>
-                    <td class="border border-solid border-gray-500 text-lg font-medium text-gray-300 py-2">{{
-                        table.module
-                    }}</td>
-                    <aside class="flex items-center justify-center w-36 gap-2 py-2">
-                    <DeleteModuleButton></DeleteModuleButton>
-                    <EditModuleButton></EditModuleButton>
-            </aside>
-                </tr>
-            
-            </TableClass>
-        </section>
-
-        <section>
-            <ButtonModule text="Adicionar aula">
-            </ButtonModule>
-        </section>
-    </div>
+      <aside class="w-full lg:w-96 max-h-[956px] bg-gray-800 overflow-scroll rounded">
+        <ul class="flex flex-col gap-3 p-4">
+          <li v-for="classToMap in formattedClasses" :key="classToMap.id">
+            <ClassCard @mark-as-completed="handleMarkClassAsCompleted" :classToRender="classToMap" />
+          </li>
+        </ul>
+      </aside>
+    </main>
+  </section>
 </template>
